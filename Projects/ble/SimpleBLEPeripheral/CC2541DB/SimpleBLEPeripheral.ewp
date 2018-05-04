@@ -499,6 +499,7 @@
           <state>$PROJ_DIR$\..\..\Profiles\DevInfo</state>
           <state>$PROJ_DIR$\..\..\Profiles\Keys\CC254x</state>
           <state>$PROJ_DIR$\..\..\Profiles\Keys</state>
+          <state>$PROJ_DIR$\..\..\Profiles\CustomProfile</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>

@@ -60,3 +60,5 @@ dkms.conf
 *.dep
 *.dni
 *.tmp
+*.bat
+*.xcl
