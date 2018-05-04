@@ -50,3 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+*.pbi
+*.cout
+*.pbd
+*.browse
+*.r51
+*.d51
+*.wsdt
+*.dep
+*.dni
