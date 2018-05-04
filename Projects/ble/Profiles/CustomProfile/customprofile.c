@@ -64,7 +64,7 @@ static CONST gattAttrType_t customProfileService = { ATT_BT_UUID_SIZE, customPro
 static uint8 customProfileChar1Props = GATT_PROP_WRITE_NO_RSP;	//0x04 prop
 
 // Characteristic 1 Value
-static uint8 customProfileChar1 = 0;
+static uint8 customProfileChar1[CUSTOMPROFILE_CHAR1_LEN] = {0};
 
 // Custom Profile Characteristic 1 User Description
 static uint8 customProfileChar1UserDesp[17] = "Char1 WR NO RSP";
@@ -118,9 +118,9 @@ static gattAttribute_t customProfileAttrTbl[CUSTOMSERVAPP_NUM_ATTR_SUPPORTED] =
     // Characteristic Value 1
     { 
         { ATT_BT_UUID_SIZE, customProfilechar1UUID },
-        GATT_PERMIT_READ | GATT_PERMIT_WRITE, 
+        GATT_PERMIT_WRITE, 
         0, 
-        &customProfileChar1 
+        customProfileChar1 
     },
 
    	// Characteristic 1 User Description
@@ -174,7 +174,7 @@ static gattAttribute_t customProfileAttrTbl[CUSTOMSERVAPP_NUM_ATTR_SUPPORTED] =
   	// Characteristic Value 3
  	{ 
         { ATT_BT_UUID_SIZE, customProfilechar3UUID },
-        GATT_PERMIT_AUTHEN_READ, 
+        GATT_PERMIT_READ, 
         0, 
         customProfileChar3
  	},
@@ -300,9 +300,9 @@ bStatus_t CustomProfile_SetParameter( uint8 param, uint8 len, void *value )
   switch ( param )
   {
     case CUSTOMPROFILE_CHAR1:
-      if ( len == sizeof ( uint8 ) ) 
+      if ( len <= CUSTOMPROFILE_CHAR1_LEN ) 
       {
-        customProfileChar1 = *((uint8*)value);
+        VOID memcpy( customProfileChar1, value, len );
       }
       else
       {
@@ -364,7 +364,7 @@ bStatus_t CustomProfile_GetParameter( uint8 param, void *value )
   switch ( param )
   {
     case CUSTOMPROFILE_CHAR1:
-      *((uint8*)value) = customProfileChar1;
+      VOID memcpy( value, customProfileChar1, CUSTOMPROFILE_CHAR1_LEN );
       break; 
 
     case CUSTOMPROFILE_CHAR2:
@@ -498,7 +498,7 @@ static bStatus_t customProfile_WriteAttrCB( uint16 connHandle, gattAttribute_t *
         // Make sure it's not a blob oper
         if ( offset == 0 )
         {
-          if ( len != 1 )
+          if ( len > CUSTOMPROFILE_CHAR1_LEN )
           {
             status = ATT_ERR_INVALID_VALUE_SIZE;
           }
@@ -511,7 +511,8 @@ static bStatus_t customProfile_WriteAttrCB( uint16 connHandle, gattAttribute_t *
         if ( status == SUCCESS )
         {
           	uint8 *pCurValue = (uint8 *)pAttr->pValue;        
-          	*pCurValue = pValue[0];
+          	VOID memset(pCurValue, 0, CUSTOMPROFILE_CHAR1_LEN);
+			VOID memcpy(pCurValue, pValue, len);
 		  	HalUARTWrite(HAL_UART_PORT_0,pValue,len);
 /*
           if( pAttr->pValue == &customProfileChar1 )

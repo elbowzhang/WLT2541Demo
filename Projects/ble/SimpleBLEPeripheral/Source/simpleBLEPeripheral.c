@@ -413,11 +413,11 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
   
   // Setup the CustomProfile Characteristic Values
   {
-  	uint8 cchar1Value = 1;
+	  uint8 cchar1Value[CUSTOMPROFILE_CHAR1_LEN] = {1};
 	uint8 cchar2Value = 2;
 	uint8 cchar3Value[CUSTOMPROFILE_CHAR3_LEN] = "WLT2541";
 	
-	CustomProfile_SetParameter( CUSTOMPROFILE_CHAR1, sizeof ( uint8 ), &cchar1Value );
+	CustomProfile_SetParameter( CUSTOMPROFILE_CHAR1, sizeof ( uint8 ), cchar1Value );
 	CustomProfile_SetParameter( CUSTOMPROFILE_CHAR2, sizeof ( uint8 ), &cchar2Value );
 	CustomProfile_SetParameter( CUSTOMPROFILE_CHAR3, CUSTOMPROFILE_CHAR3_LEN, cchar3Value );
   }
@@ -707,8 +707,8 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
 		uint16 latency = 0;
 		uint16 connTimeOut = 500;		//*10ms  苹果手机超时设置必须小于6s
 		
-		HalUARTWrite(HAL_UART_PORT_0, "update conn para\r\n", strlen("update conn para\r\n"));
-		GAPRole_SendUpdateParam(minConnInterval, maxConnInterval, latency, connTimeOut, GAPROLE_TERMINATE_LINK);
+		//HalUARTWrite(HAL_UART_PORT_0, "update conn para\r\n", strlen("update conn para\r\n"));
+		//GAPRole_SendUpdateParam(minConnInterval, maxConnInterval, latency, connTimeOut, GAPROLE_TERMINATE_LINK);
 		  
 		
 		
@@ -881,14 +881,14 @@ static void simpleProfileChangeCB( uint8 paramID )
  */
 static void customProfileChangeCB( uint8 paramID )
 {
-  uint8 newValue;
+  uint8* newValue = (uint8*)osal_mem_alloc(8*32);
 
   switch( paramID )
   {
     case CUSTOMPROFILE_CHAR1:
-      CustomProfile_GetParameter( CUSTOMPROFILE_CHAR1, &newValue );
+      CustomProfile_GetParameter( CUSTOMPROFILE_CHAR1, newValue );
 	  
-	  HalUARTWrite(HAL_UART_PORT_0,&newValue,sizeof(newValue));
+	  HalUARTWrite(HAL_UART_PORT_0,newValue,sizeof(newValue));
 
       #if (defined HAL_LCD) && (HAL_LCD == TRUE)
         HalLcdWriteStringValue( "Char 1:", (uint16)(newValue), 10,  HAL_LCD_LINE_3 );
@@ -900,6 +900,7 @@ static void customProfileChangeCB( uint8 paramID )
       // should not reach here!
       break;
   }
+  osal_mem_free(newValue);
 }
 
 

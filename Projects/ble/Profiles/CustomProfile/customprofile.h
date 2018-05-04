@@ -34,6 +34,8 @@ extern "C"
 // Simple Keys Profile Services bit fields
 #define CUSTOMPROFILE_SERVICE		0x000000002
 	
+#define CUSTOMPROFILE_CHAR1_LEN			32
+	
 // Length of Characteristic 3 in bytes
 #define CUSTOMPROFILE_CHAR3_LEN           7
 	
