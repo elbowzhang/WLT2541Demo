@@ -370,6 +370,7 @@ void AT_Comand_Parser( uint8 port, uint8 event )
 								  
 							uint8 getAdvInterval[20];
 							memset(getAdvInterval,0,20);
+							//sprintf用法，打印给getAdvInterval字符串
 							sprintf(getAdvInterval,"+OK=%d\r\n",setAdvInterval);
 							HalUARTWrite(HAL_UART_PORT_0,getAdvInterval,strlen(getAdvInterval));
 							memset(serialBuffer,0,100);
@@ -651,7 +652,8 @@ void AT_Comand_Parser( uint8 port, uint8 event )
 				break;
 				
 			//透传模式
-			case MODULE_MODE_TRANS:        
+			case MODULE_MODE_TRANS:     
+			
 				if(numBytes == 1)
 				{	
 					if(temp_buf[0] == 'a')
@@ -679,7 +681,6 @@ void AT_Comand_Parser( uint8 port, uint8 event )
 				}
 				else
 				{
-					
 					exitTransNum = 0;
 					for (uint8 i = 0; i < numBytes; i++)
          			{

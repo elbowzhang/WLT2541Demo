@@ -105,7 +105,6 @@ typedef struct
   simpleProfileChange_t        pfnSimpleProfileChange;  // Called when characteristic value changes
 } simpleProfileCBs_t;
 
-    
 
 /*********************************************************************
  * API FUNCTIONS 

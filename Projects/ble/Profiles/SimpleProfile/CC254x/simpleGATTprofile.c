@@ -492,11 +492,12 @@ bStatus_t SimpleProfile_SetParameter( uint8 param, uint8 len, void *value )
       if ( len == sizeof ( uint8 ) ) 
       {
         simpleProfileChar4 = *((uint8*)value);
-        
+        /*
         // See if Notification has been enabled
         GATTServApp_ProcessCharCfg( simpleProfileChar4Config, &simpleProfileChar4, FALSE,
                                     simpleProfileAttrTbl, GATT_NUM_ATTRS( simpleProfileAttrTbl ),
                                     INVALID_TASK_ID, simpleProfile_ReadAttrCB );
+		*/
       }
       else
       {

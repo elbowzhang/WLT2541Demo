@@ -129,8 +129,13 @@ extern uint8 serialBuffer[100];
 extern long serialBufferOffset;
 extern bool restart_adv;
 
-// GAP GATT Attributes
+uint16 minInterval;
+uint16 maxInterval;
+uint16 connInterval;
+uint16 connLatency;
+uint16 connTimeout;
 
+// GAP GATT Attributes
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -296,16 +301,22 @@ void SimpleBLEPeripheral_Init( uint8 task_id )
     advertData[0]=0x02;
     advertData[1]=GAP_ADTYPE_FLAGS;
     advertData[2]=DEFAULT_DISCOVERABLE_MODE | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED;
-    advertData[3]=0x03;
     
+	advertData[3]=0x03;
     advertData[4]=GAP_ADTYPE_16BIT_MORE;
     advertData[5]=LO_UINT16( SIMPLEPROFILE_SERV_UUID );
     advertData[6]=HI_UINT16( SIMPLEPROFILE_SERV_UUID );
-    advertData[7]=strlen(attDeviceName)+1;
-    advertData[8]=GAP_ADTYPE_LOCAL_NAME_COMPLETE;
+	
+	advertData[7]=0x03;
+    advertData[8]=GAP_ADTYPE_16BIT_MORE;
+    advertData[9]=LO_UINT16( CUSTOMPROFILE_SERV_UUID );
+    advertData[10]=HI_UINT16( CUSTOMPROFILE_SERV_UUID );
+	
+    advertData[11]=strlen(attDeviceName)+1;
+    advertData[12]=GAP_ADTYPE_LOCAL_NAME_COMPLETE;
     
     for(i=0;i<strlen(attDeviceName);i++)
-      advertData[9+i] = attDeviceName[i];
+      advertData[13+i] = attDeviceName[i];
    
   	// Setup the GAP Peripheral Role Profile
   	{
@@ -693,6 +704,18 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
 			HalLcdWriteString( "Connected",  HAL_LCD_LINE_3 );
 		#endif // (defined HAL_LCD) && (HAL_LCD == TRUE)
 		
+			uint8 buffer[20] = {0};
+		//发送连接参数
+		
+		GAPRole_GetParameter(GAPROLE_MIN_CONN_INTERVAL, &minInterval);
+		GAPRole_GetParameter(GAPROLE_MAX_CONN_INTERVAL, &maxInterval);
+		
+		sprintf(buffer, "%d\r\n", connInterval);
+		HalUARTWrite(HAL_UART_PORT_0, buffer, strlen(buffer));
+		
+		memset(buffer, 0, 20);
+		sprintf(buffer, "%d\r\n", connLatency);
+		HalUARTWrite(HAL_UART_PORT_0, buffer, strlen(buffer));
 			
 		/*苹果蓝牙参数要求
 			1，Interval Max * (Slave Latency + 1) ≤ 2 seconds
@@ -707,10 +730,15 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
 		uint16 latency = 0;
 		uint16 connTimeOut = 500;		//*10ms  苹果手机超时设置必须小于6s
 		
-		//HalUARTWrite(HAL_UART_PORT_0, "update conn para\r\n", strlen("update conn para\r\n"));
-		//GAPRole_SendUpdateParam(minConnInterval, maxConnInterval, latency, connTimeOut, GAPROLE_TERMINATE_LINK);
+		HalUARTWrite(HAL_UART_PORT_0, "update conn para\r\n", strlen("update conn para\r\n"));
+		GAPRole_SendUpdateParam(minConnInterval, maxConnInterval, latency, connTimeOut, GAPROLE_TERMINATE_LINK);
 		  
+		//发送连接参数
+		uint16 minInterval1;
+		uint16 maxInterval1;
 		
+		GAPRole_GetParameter(GAPROLE_MIN_CONN_INTERVAL, &minInterval1);
+		GAPRole_GetParameter(GAPROLE_MAX_CONN_INTERVAL, &maxInterval1);
 		
     	module_mode = MODULE_MODE_TRANS;
       	module_state = MODULE_STATE_CONNECTED_TRANS;
@@ -758,9 +786,9 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
           osal_stop_timerEx(simpleBLEPeripheral_TaskID,SBP_PERIODIC_EVT);
 		  
 		  //然后关闭广播
-		  HalUARTWrite(HAL_UART_PORT_0,"close advertising\n",strlen("close advertising\n"));
-		  uint8 initial_advertising_enable = FALSE;
-		  GAPRole_SetParameter( GAPROLE_ADVERT_ENABLED, sizeof( uint8 ), &initial_advertising_enable );
+		  //HalUARTWrite(HAL_UART_PORT_0,"close advertising\n",strlen("close advertising\n"));
+		  //uint8 initial_advertising_enable = FALSE;
+		  //GAPRole_SetParameter( GAPROLE_ADVERT_ENABLED, sizeof( uint8 ), &initial_advertising_enable );
         }
         
   	}
@@ -967,8 +995,8 @@ static uint8 sendData(uint16 diff)
   uint8 bytes_sent = 0;
   
   attHandleValueNoti_t noti;      
-  //dummy handle
-  noti.handle = 0x2E;  
+  //dummy handle	虚拟句柄 指向0xFFF4
+  noti.handle = 0x39;  		//通过更改这里实现使用不同的notify
   
   //counter
   uint8 i;

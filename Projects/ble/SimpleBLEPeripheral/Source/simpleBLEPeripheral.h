@@ -62,7 +62,7 @@ extern "C"
  * CONSTANTS
  */
  // How often to perform periodic event
-#define SBP_PERIODIC_EVT_PERIOD                   1000
+#define SBP_PERIODIC_EVT_PERIOD                   1
 
 // What is the advertising interval when device is discoverable (units of 625us, 160=100ms)
 #define DEFAULT_ADVERTISING_INTERVAL          160
@@ -89,7 +89,7 @@ extern "C"
 #define DEFAULT_DESIRED_CONN_TIMEOUT          1000
 
 // Whether to enable automatic parameter update request when a connection is formed
-#define DEFAULT_ENABLE_UPDATE_REQUEST         TRUE
+#define DEFAULT_ENABLE_UPDATE_REQUEST         true
 
 // Connection Pause Peripheral time value (in seconds)
 #define DEFAULT_CONN_PAUSE_PERIPHERAL         6

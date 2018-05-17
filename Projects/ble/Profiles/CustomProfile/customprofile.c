@@ -513,6 +513,8 @@ static bStatus_t customProfile_WriteAttrCB( uint16 connHandle, gattAttribute_t *
           	uint8 *pCurValue = (uint8 *)pAttr->pValue;        
           	VOID memset(pCurValue, 0, CUSTOMPROFILE_CHAR1_LEN);
 			VOID memcpy(pCurValue, pValue, len);
+			//
+			//send to uart
 		  	HalUARTWrite(HAL_UART_PORT_0,pValue,len);
 /*
           if( pAttr->pValue == &customProfileChar1 )
